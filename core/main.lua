@@ -1,150 +1,85 @@
 local TweenService = game:GetService("TweenService")
-local UserInputService = game:GetService("UserInputService")
 
 local Iridium = {}
 
-Iridium.Theme = {
-    Background = Color3.fromRGB(24, 24, 24),
-    TabInactive = Color3.fromRGB(40, 40, 40),
-    TabActive = Color3.fromRGB(60, 60, 60),
-    Accent = Color3.fromRGB(0, 120, 255),
-    Text = Color3.fromRGB(255, 255, 255)
-}
+local function CreateWindow(title)
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "IridiumUI"
+    ScreenGui.ResetOnSpawn = false
+    ScreenGui.Parent = game:GetService("CoreGui")
 
-local function Tween(obj, props, time)
-    TweenService:Create(obj, TweenInfo.new(time or 0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), props):Play()
-end
+    local MainFrame = Instance.new("Frame")
+    MainFrame.Size = UDim2.new(0, 500, 0, 350)
+    MainFrame.Position = UDim2.new(0.5, -250, 0.5, -175)
+    MainFrame.BackgroundColor3 = Color3.fromRGB(24, 24, 24)
+    MainFrame.BorderSizePixel = 0
+    MainFrame.Parent = ScreenGui
 
-function Iridium:CreateWindow(title)
-    local screen = Instance.new("ScreenGui", game:GetService("CoreGui"))
-    screen.Name = "IridiumUI_" .. title
+    local UICorner = Instance.new("UICorner", MainFrame)
+    UICorner.CornerRadius = UDim.new(0, 10)
 
-    local main = Instance.new("Frame", screen)
-    main.Size = UDim2.new(0, 500, 0, 350)
-    main.Position = UDim2.new(0.5, -250, 0.5, -175)
-    main.BackgroundColor3 = self.Theme.Background
-    main.BorderSizePixel = 0
-    main.Name = "Main"
-    main.AnchorPoint = Vector2.new(0.5, 0.5)
+    local Title = Instance.new("TextLabel")
+    Title.Size = UDim2.new(1, 0, 0, 40)
+    Title.BackgroundTransparency = 1
+    Title.Text = title or "Iridium"
+    Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Title.TextSize = 20
+    Title.Font = Enum.Font.GothamBold
+    Title.Parent = MainFrame
 
-    local titleBar = Instance.new("TextLabel", main)
-    titleBar.Size = UDim2.new(1, 0, 0, 35)
-    titleBar.Text = title
-    titleBar.Font = Enum.Font.GothamBold
-    titleBar.TextSize = 16
-    titleBar.TextColor3 = self.Theme.Text
-    titleBar.BackgroundColor3 = self.Theme.Accent
-    titleBar.BorderSizePixel = 0
-    titleBar.Name = "TitleBar"
+    local TabsContainer = Instance.new("Frame")
+    TabsContainer.Position = UDim2.new(0, 0, 0, 40)
+    TabsContainer.Size = UDim2.new(0, 150, 1, -40)
+    TabsContainer.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+    TabsContainer.BorderSizePixel = 0
+    TabsContainer.Parent = MainFrame
 
-    local tabHolder = Instance.new("Frame", main)
-    tabHolder.Size = UDim2.new(0, 120, 1, -35)
-    tabHolder.Position = UDim2.new(0, 0, 0, 35)
-    tabHolder.BackgroundColor3 = self.Theme.TabInactive
-    tabHolder.BorderSizePixel = 0
-    tabHolder.Name = "TabHolder"
+    local TabList = Instance.new("UIListLayout", TabsContainer)
+    TabList.Padding = UDim.new(0, 5)
+    TabList.SortOrder = Enum.SortOrder.LayoutOrder
 
-    local pageHolder = Instance.new("Frame", main)
-    pageHolder.Size = UDim2.new(1, -120, 1, -35)
-    pageHolder.Position = UDim2.new(0, 120, 0, 35)
-    pageHolder.BackgroundTransparency = 1
-    pageHolder.Name = "PageHolder"
+    local ContentFrame = Instance.new("Frame")
+    ContentFrame.Position = UDim2.new(0, 150, 0, 40)
+    ContentFrame.Size = UDim2.new(1, -150, 1, -40)
+    ContentFrame.BackgroundTransparency = 1
+    ContentFrame.ClipsDescendants = true
+    ContentFrame.Parent = MainFrame
 
-    local tabList = Instance.new("UIListLayout", tabHolder)
-    tabList.SortOrder = Enum.SortOrder.LayoutOrder
-    tabList.Padding = UDim.new(0, 4)
+    local Tabs = {}
 
-    function Iridium:CreateTab(tabName)
-        local tabButton = Instance.new("TextButton", tabHolder)
-        tabButton.Size = UDim2.new(1, 0, 0, 30)
-        tabButton.Text = tabName
-        tabButton.BackgroundColor3 = self.Theme.TabInactive
-        tabButton.TextColor3 = self.Theme.Text
-        tabButton.Font = Enum.Font.Gotham
-        tabButton.TextSize = 14
-        tabButton.BorderSizePixel = 0
+    local function CreateTab(name)
+        local TabButton = Instance.new("TextButton")
+        TabButton.Size = UDim2.new(1, 0, 0, 30)
+        TabButton.BackgroundColor3 = Color3.fromRGB(28, 28, 28)
+        TabButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+        TabButton.TextSize = 14
+        TabButton.Font = Enum.Font.Gotham
+        TabButton.Text = name
+        TabButton.Parent = TabsContainer
 
-        local page = Instance.new("ScrollingFrame", pageHolder)
-        page.Visible = false
-        page.Size = UDim2.new(1, 0, 1, 0)
-        page.CanvasSize = UDim2.new(0, 0, 0, 0)
-        page.ScrollBarThickness = 6
-        page.ScrollBarImageColor3 = self.Theme.Accent
-        page.BackgroundTransparency = 1
-        page.Name = tabName
+        local TabContent = Instance.new("Frame")
+        TabContent.Size = UDim2.new(1, 0, 1, 0)
+        TabContent.BackgroundTransparency = 1
+        TabContent.Visible = false
+        TabContent.Parent = ContentFrame
 
-        local layout = Instance.new("UIListLayout", page)
-        layout.Padding = UDim.new(0, 10)
-        layout.SortOrder = Enum.SortOrder.LayoutOrder
+        Tabs[name] = TabContent
 
-        tabButton.MouseButton1Click:Connect(function()
-            for _, v in ipairs(pageHolder:GetChildren()) do
-                if v:IsA("ScrollingFrame") then
-                    v.Visible = false
-                end
+        TabButton.MouseButton1Click:Connect(function()
+            for tabName, content in pairs(Tabs) do
+                content.Visible = (tabName == name)
             end
-            for _, b in ipairs(tabHolder:GetChildren()) do
-                if b:IsA("TextButton") then
-                    Tween(b, {BackgroundColor3 = self.Theme.TabInactive})
-                end
-            end
-            Tween(tabButton, {BackgroundColor3 = self.Theme.TabActive})
-            page.Visible = true
         end)
 
-        function page:CreateSection(sectionTitle)
-            local section = Instance.new("Frame")
-            section.Size = UDim2.new(1, -20, 0, 0)
-            section.Position = UDim2.new(0, 10, 0, 10)
-            section.BackgroundTransparency = 1
-            section.BorderSizePixel = 0
-            section.Parent = page
-
-            local layout = Instance.new("UIListLayout", section)
-            layout.Padding = UDim.new(0, 6)
-            layout.SortOrder = Enum.SortOrder.LayoutOrder
-
-            local label = Instance.new("TextLabel", section)
-            label.Size = UDim2.new(1, 0, 0, 20)
-            label.Text = sectionTitle
-            label.Font = Enum.Font.GothamBold
-            label.TextSize = 14
-            label.TextColor3 = Iridium.Theme.Text
-            label.BackgroundTransparency = 1
-            label.TextXAlignment = Enum.TextXAlignment.Left
-
-            section.Size = UDim2.new(1, -20, 0, 25)
-
-            function section:_UpdateHeight()
-                local total = 0
-                for _, c in pairs(section:GetChildren()) do
-                    if c:IsA("GuiObject") then
-                        total = total + c.AbsoluteSize.Y + layout.Padding.Offset
-                    end
-                end
-                section.Size = UDim2.new(1, -20, 0, total)
-            end
-
-            return setmetatable({}, {
-                __index = function(_, key)
-                    return Iridium["Add" .. key] and function(_, ...)
-                        Iridium["Add" .. key](Iridium, section, ...)
-                        section:_UpdateHeight()
-                    end
-                end
-            })
-        end
-
-        return page
+        local Components = require(script.Parent:WaitForChild("components"))
+        return Components.CreateSection(TabContent)
     end
 
-    return setmetatable({}, {
-        __index = function(_, key)
-            return Iridium[key]
-        end
-    })
+    return {
+        CreateTab = CreateTab
+    }
 end
 
+-- 🔧 Correção: expõe o método CreateWindow na tabela Iridium
 Iridium.CreateWindow = CreateWindow
-
 return Iridium
