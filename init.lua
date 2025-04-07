@@ -1,7 +1,9 @@
-local Http = game:HttpGet
-local repo = "https://raw.githubusercontent.com/yPyetroXP/iridiumlibrary/main/"
+local Core = {}
+Core.Theme = {
+    Accent = Color3.fromRGB(100, 0, 255),
+    Text = Color3.fromRGB(255, 255, 255)
+}
 
-local Core = loadstring(Http(repo .. "core/main.lua"))()
-loadstring(Http(repo .. "core/components.lua"))(Core)
+loadstring(game:HttpGet("https://raw.githubusercontent.com/yPyetroXP/iridiumlibrary/main/core/main.lua"))()(Core)
 
 return Core
