@@ -1,85 +1,51 @@
-local TweenService = game:GetService("TweenService")
+local HttpService = game:GetService("HttpService")
 
-local Iridium = {}
+local Iridium = {
+    Theme = {
+        Background = Color3.fromRGB(25, 25, 25),
+        Accent = Color3.fromRGB(0, 170, 255),
+        Text = Color3.fromRGB(255, 255, 255)
+    }
+}
 
-local function CreateWindow(title)
-    local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "IridiumUI"
-    ScreenGui.ResetOnSpawn = false
-    ScreenGui.Parent = game:GetService("CoreGui")
+function Iridium:CreateWindow(options)
+    local title = options.Title or "Iridium UI"
+    print("[Iridium] Janela criada: " .. title)
 
-    local MainFrame = Instance.new("Frame")
-    MainFrame.Size = UDim2.new(0, 500, 0, 350)
-    MainFrame.Position = UDim2.new(0.5, -250, 0.5, -175)
-    MainFrame.BackgroundColor3 = Color3.fromRGB(24, 24, 24)
-    MainFrame.BorderSizePixel = 0
-    MainFrame.Parent = ScreenGui
+    local Window = {}
 
-    local UICorner = Instance.new("UICorner", MainFrame)
-    UICorner.CornerRadius = UDim.new(0, 10)
+    function Window:AddTab(name)
+        print("[Iridium] Aba adicionada: " .. name)
 
-    local Title = Instance.new("TextLabel")
-    Title.Size = UDim2.new(1, 0, 0, 40)
-    Title.BackgroundTransparency = 1
-    Title.Text = title or "Iridium"
-    Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Title.TextSize = 20
-    Title.Font = Enum.Font.GothamBold
-    Title.Parent = MainFrame
+        local Tab = {}
 
-    local TabsContainer = Instance.new("Frame")
-    TabsContainer.Position = UDim2.new(0, 0, 0, 40)
-    TabsContainer.Size = UDim2.new(0, 150, 1, -40)
-    TabsContainer.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
-    TabsContainer.BorderSizePixel = 0
-    TabsContainer.Parent = MainFrame
+        function Tab:AddSection(sectionName)
+            print("[Iridium] Seção adicionada: " .. sectionName)
 
-    local TabList = Instance.new("UIListLayout", TabsContainer)
-    TabList.Padding = UDim.new(0, 5)
-    TabList.SortOrder = Enum.SortOrder.LayoutOrder
+            -- Aqui você criaria o container visual da seção
+            local Section = Instance.new("Frame")
+            Section.Name = sectionName
+            Section.Size = UDim2.new(1, 0, 0, 100)
+            Section.BackgroundTransparency = 1
 
-    local ContentFrame = Instance.new("Frame")
-    ContentFrame.Position = UDim2.new(0, 150, 0, 40)
-    ContentFrame.Size = UDim2.new(1, -150, 1, -40)
-    ContentFrame.BackgroundTransparency = 1
-    ContentFrame.ClipsDescendants = true
-    ContentFrame.Parent = MainFrame
+            return Section
+        end
 
-    local Tabs = {}
-
-    local function CreateTab(name)
-        local TabButton = Instance.new("TextButton")
-        TabButton.Size = UDim2.new(1, 0, 0, 30)
-        TabButton.BackgroundColor3 = Color3.fromRGB(28, 28, 28)
-        TabButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-        TabButton.TextSize = 14
-        TabButton.Font = Enum.Font.Gotham
-        TabButton.Text = name
-        TabButton.Parent = TabsContainer
-
-        local TabContent = Instance.new("Frame")
-        TabContent.Size = UDim2.new(1, 0, 1, 0)
-        TabContent.BackgroundTransparency = 1
-        TabContent.Visible = false
-        TabContent.Parent = ContentFrame
-
-        Tabs[name] = TabContent
-
-        TabButton.MouseButton1Click:Connect(function()
-            for tabName, content in pairs(Tabs) do
-                content.Visible = (tabName == name)
-            end
-        end)
-
-        local Components = require(script.Parent:WaitForChild("components"))
-        return Components.CreateSection(TabContent)
+        return Tab
     end
 
-    return {
-        CreateTab = CreateTab
-    }
+    return Window
 end
 
--- 🔧 Correção: expõe o método CreateWindow na tabela Iridium
-Iridium.CreateWindow = CreateWindow
+-- Carrega components.lua, se disponível
+local success, components = pcall(function()
+    return loadstring(game:HttpGet("https://raw.githubusercontent.com/yPyetroXP/iridiumlibrary/main/components.lua"))()
+end)
+
+if success and components then
+    components(Iridium)
+else
+    warn("[Iridium] Falha ao carregar components.lua: HTTP 404 (Not Found)")
+end
+
 return Iridium
