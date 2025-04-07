@@ -39,7 +39,7 @@ end
 
 -- Carrega components.lua, se disponível
 local success, components = pcall(function()
-    return loadstring(game:HttpGet("https://raw.githubusercontent.com/yPyetroXP/iridiumlibrary/main/components.lua"))()
+    return loadstring(game:HttpGet("https://raw.githubusercontent.com/yPyetroXP/iridiumlibrary/refs/heads/main/core/components.lua"))()
 end)
 
 if success and components then
