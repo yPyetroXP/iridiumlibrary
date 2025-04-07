@@ -145,4 +145,6 @@ function Iridium:CreateWindow(title)
     })
 end
 
+Iridium.CreateWindow = CreateWindow
+
 return Iridium
